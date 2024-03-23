@@ -14,7 +14,7 @@ public class Menu {
             this.scanner = scanner;
         }
 
-        public void exibirMenu() {
+        public void ExibirMenu() {
             while (true) {
                 System.out.println("\n===== Menu Principal =====");
                 System.out.println("1. Cadastrar Evento");
@@ -31,28 +31,28 @@ public class Menu {
 
                 switch (opcao) {
                     case 1:
-                        sistema.cadastrarEvento();
+                        sistema.CadastrarEvento();
                         break;
                     case 2:
-                        sistema.exibirEventos();
+                        sistema.ExibirEventos();
                         break;
                     case 3:
-                        sistema.exibirEventosPassados();
+                        sistema.ExibirEventosPassados();
                         break;
                     case 4:
-                        sistema.verificarEventosOcorrendoAgora();
+                        sistema.VerificarEventosOcorrendoAgora();
                         break;
                     case 5:
-                        sistema.cadastrarUsuario();
+                        sistema.CadastrarUsuario();
                         break;
                     case 6:
-                        sistema.consultarUsuarios();
+                        sistema.ConsultarUsuarios();
                         break;
                     case 7:
-                        sistema.marcarPresenca();
+                        sistema.MarcarPresenca();
                         break;
                     case 8:
-                        sistema.cancelarPresenca();
+                        sistema.CancelarPresenca();
                         break;
                     case 0:
                         System.out.println("Encerrando o programa...");

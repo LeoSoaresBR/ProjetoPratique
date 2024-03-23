@@ -21,30 +21,30 @@ class Usuario {
 
     // Getters
 
-    public int getId() {
+    public int GetId() {
         return id;
     }
 
-    public String getNomeCompleto() {
+    public String GetNomeCompleto() {
         return nome + " " + sobrenome;
     }
 
-    public String getEmail() {
+    public String GetEmail() {
         return email;
     }
 
-    public String getCidade() {
+    public String GetCidade() {
         return cidade;
     }
 
     // Método para converter o usuário para uma string no formato de linha do
     // arquivo
-    public String toFileString() {
+    public String ToFileString() {
         return nome + ";" + sobrenome + ";" + email + ";" + cidade;
     }
 
     // Método para criar um usuário a partir de uma linha do arquivo
-    public static Usuario fromFileString(String line) {
+    public static Usuario FromFileString(String line) {
         String[] parts = line.split(";");
         String nome = parts[0];
         String sobrenome = parts[1];

@@ -12,6 +12,6 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         MenuPrincipal menu = new MenuPrincipal(sistema, scanner);
-        menu.exibirMenu();
+        menu.ExibirMenu();
     }
 }

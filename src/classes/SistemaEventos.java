@@ -20,15 +20,15 @@ class SistemaEventos {
         eventos = new ArrayList<>();
         usuarios = new ArrayList<>();
         scanner = new Scanner(System.in);
-        carregarEventos();
-        carregarUsuarios();
+        CarregarEventos();
+        CarregarUsuarios();
     }
 
     // Método para salvar eventos em um arquivo
-    private void salvarEventos() {
+    private void SalvarEventos() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("events.data"))) {
             for (Evento evento : eventos) {
-                writer.println(evento.toFileString());
+                writer.println(evento.ToFileString());
             }
         } catch (IOException e) {
             System.out.println("Erro ao salvar eventos: " + e.getMessage());
@@ -36,21 +36,21 @@ class SistemaEventos {
     }
 
     // Método para carregar eventos a partir de um arquivo
-    private void carregarEventos() {
+    private void CarregarEventos() {
         try (BufferedReader reader = new BufferedReader(new FileReader("events.data"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                eventos.add(Evento.fromFileString(line));
+                eventos.add(Evento.FromFileString(line));
             }
         } catch (IOException e) {
             System.out.println("Erro ao carregar eventos: " + e.getMessage());
             // Se o arquivo não existir, crie um novo arquivo
-            criarArquivo("events.data");
+            CriarArquivo("events.data");
         }
     }
 
     // Método para criar um arquivo se não existir
-    private void criarArquivo(String nomeArquivo) {
+    private void CriarArquivo(String nomeArquivo) {
         try {
             File arquivo = new File(nomeArquivo);
             if (arquivo.createNewFile()) {
@@ -64,7 +64,7 @@ class SistemaEventos {
     }
 
     // Método para cadastrar um evento
-    public void cadastrarEvento() {
+    public void CadastrarEvento() {
         System.out.println("Cadastro de Evento");
 
         // Solicitar informações do evento
@@ -100,84 +100,84 @@ class SistemaEventos {
         Evento evento = new Evento(nome, endereco, cidade, categoria, horarioInicio, horarioFim, descricao);
         eventos.add(evento);
 
-        salvarEventos(); // Após cadastrar, salva os eventos
+        SalvarEventos(); // Após cadastrar, salva os eventos
 
         System.out.println("Evento cadastrado com sucesso!");
     }
 
     // Método para exibir todos os eventos cadastrados que ainda não ocorreram
-    public void exibirEventos() {
+    public void ExibirEventos() {
         LocalDateTime agora = LocalDateTime.now();
         System.out.println("Eventos cadastrados que ainda não ocorreram:");
 
         eventos.stream()
-                .filter(evento -> evento.getHorarioInicio().isAfter(agora)) // Eventos com horário de início posterior
+                .filter(evento -> evento.GetHorarioInicio().isAfter(agora)) // Eventos com horário de início posterior
                                                                             // ao horário atual
-                .sorted(Comparator.comparing(Evento::getHorarioInicio))
+                .sorted(Comparator.comparing(Evento::GetHorarioInicio))
                 .forEach(evento -> {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                    System.out.println("Nome: " + evento.getNome());
-                    System.out.println("Endereço: " + evento.getEndereco());
-                    System.out.println("Cidade: " + evento.getCidade());
-                    System.out.println("Categoria: " + evento.getCategoria());
-                    System.out.println("Horário de Início: " + evento.getHorarioInicio().format(formatter));
-                    System.out.println("Horário de Término: " + evento.getHorarioFim().format(formatter));
-                    System.out.println("Descrição: " + evento.getDescricao());
+                    System.out.println("Nome: " + evento.GetNome());
+                    System.out.println("Endereço: " + evento.GetEndereco());
+                    System.out.println("Cidade: " + evento.GetCidade());
+                    System.out.println("Categoria: " + evento.GetCategoria());
+                    System.out.println("Horário de Início: " + evento.GetHorarioInicio().format(formatter));
+                    System.out.println("Horário de Término: " + evento.GetHorarioFim().format(formatter));
+                    System.out.println("Descrição: " + evento.GetDescricao());
                     System.out.println();
                 });
     }
 
     // Método para exibir eventos que já ocorreram
-    public void exibirEventosPassados() {
+    public void ExibirEventosPassados() {
         LocalDateTime agora = LocalDateTime.now();
         System.out.println("Eventos que já ocorreram:");
 
         eventos.stream()
-                .filter(evento -> evento.getHorarioFim().isBefore(agora)) // Eventos com horário de término anterior ao
+                .filter(evento -> evento.GetHorarioFim().isBefore(agora)) // Eventos com horário de término anterior ao
                                                                           // horário atual
-                .sorted(Comparator.comparing(Evento::getHorarioFim).reversed()) // Ordena do mais recente para o mais
+                .sorted(Comparator.comparing(Evento::GetHorarioFim).reversed()) // Ordena do mais recente para o mais
                                                                                 // antigo
                 .forEach(evento -> {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                    System.out.println("Nome: " + evento.getNome());
-                    System.out.println("Endereço: " + evento.getEndereco());
-                    System.out.println("Cidade: " + evento.getCidade());
-                    System.out.println("Categoria: " + evento.getCategoria());
-                    System.out.println("Horário de Início: " + evento.getHorarioInicio().format(formatter));
-                    System.out.println("Horário de Término: " + evento.getHorarioFim().format(formatter));
-                    System.out.println("Descrição: " + evento.getDescricao());
+                    System.out.println("Nome: " + evento.GetNome());
+                    System.out.println("Endereço: " + evento.GetEndereco());
+                    System.out.println("Cidade: " + evento.GetCidade());
+                    System.out.println("Categoria: " + evento.GetCategoria());
+                    System.out.println("Horário de Início: " + evento.GetHorarioInicio().format(formatter));
+                    System.out.println("Horário de Término: " + evento.GetHorarioFim().format(formatter));
+                    System.out.println("Descrição: " + evento.GetDescricao());
                     System.out.println();
                 });
     }
 
     // Método para verificar se há eventos ocorrendo no momento e exibi-los
-    public void verificarEventosOcorrendoAgora() {
+    public void VerificarEventosOcorrendoAgora() {
         LocalDateTime agora = LocalDateTime.now();
         System.out.println("Eventos ocorrendo agora:");
 
         eventos.stream()
-                .filter(evento -> evento.getHorarioInicio().isBefore(agora) && evento.getHorarioFim().isAfter(agora)) // Eventos
+                .filter(evento -> evento.GetHorarioInicio().isBefore(agora) && evento.GetHorarioFim().isAfter(agora)) // Eventos
                                                                                                                       // dentro
                                                                                                                       // do
                                                                                                                       // horário
                                                                                                                       // atual
-                .sorted(Comparator.comparing(Evento::getHorarioInicio))
+                .sorted(Comparator.comparing(Evento::GetHorarioInicio))
                 .forEach(evento -> {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                    System.out.println("Nome: " + evento.getNome());
-                    System.out.println("Endereço: " + evento.getEndereco());
-                    System.out.println("Cidade: " + evento.getCidade());
-                    System.out.println("Categoria: " + evento.getCategoria());
-                    System.out.println("Horário de Início: " + evento.getHorarioInicio().format(formatter));
-                    System.out.println("Horário de Término: " + evento.getHorarioFim().format(formatter));
-                    System.out.println("Descrição: " + evento.getDescricao());
+                    System.out.println("Nome: " + evento.GetNome());
+                    System.out.println("Endereço: " + evento.GetEndereco());
+                    System.out.println("Cidade: " + evento.GetCidade());
+                    System.out.println("Categoria: " + evento.GetCategoria());
+                    System.out.println("Horário de Início: " + evento.GetHorarioInicio().format(formatter));
+                    System.out.println("Horário de Término: " + evento.GetHorarioFim().format(formatter));
+                    System.out.println("Descrição: " + evento.GetDescricao());
                     System.out.println();
                 });
     }
 
     // Método para marcar presença em um evento
     // Método para marcar presença em um evento
-    public void marcarPresenca() {
+    public void MarcarPresenca() {
         if (eventos.isEmpty()) {
             System.out.println("Não há eventos disponíveis para marcar presença.");
             return;
@@ -185,7 +185,7 @@ class SistemaEventos {
 
         LocalDateTime agora = LocalDateTime.now();
         List<Evento> eventosFuturos = eventos.stream()
-                .filter(evento -> evento.getHorarioInicio().isAfter(agora))
+                .filter(evento -> evento.GetHorarioInicio().isAfter(agora))
                 .collect(Collectors.toList());
 
         if (eventosFuturos.isEmpty()) {
@@ -200,7 +200,7 @@ class SistemaEventos {
 
         // Filtrar os eventos futuros disponíveis apenas para a cidade do usuário
         eventosFuturos = eventosFuturos.stream()
-                .filter(evento -> evento.getCidade().equalsIgnoreCase(cidadeUsuario))
+                .filter(evento -> evento.GetCidade().equalsIgnoreCase(cidadeUsuario))
                 .collect(Collectors.toList());
 
         if (eventosFuturos.isEmpty()) {
@@ -211,7 +211,7 @@ class SistemaEventos {
         System.out.println("Escolha o evento para marcar presença:");
 
         for (int i = 0; i < eventosFuturos.size(); i++) {
-            System.out.println((i + 1) + ". " + eventosFuturos.get(i).getNome());
+            System.out.println((i + 1) + ". " + eventosFuturos.get(i).GetNome());
         }
 
         System.out.print("Digite o número do evento ou 0 para voltar ao menu principal: ");
@@ -228,8 +228,8 @@ class SistemaEventos {
             System.out.println("Escolha um usuário para marcar presença:");
             for (int i = 0; i < usuarios.size(); i++) {
                 // Filtrar usuários apenas para a mesma cidade do evento
-                if (usuarios.get(i).getCidade().equalsIgnoreCase(cidadeUsuario)) {
-                    System.out.println((i + 1) + ". " + usuarios.get(i).getNomeCompleto());
+                if (usuarios.get(i).GetCidade().equalsIgnoreCase(cidadeUsuario)) {
+                    System.out.println((i + 1) + ". " + usuarios.get(i).GetNomeCompleto());
                 }
             }
 
@@ -238,15 +238,15 @@ class SistemaEventos {
             int numeroUsuario = Integer.parseInt(scanner.nextLine());
 
             if (numeroUsuario == 0) {
-                cadastrarUsuario(); // Criar um novo usuário
+                CadastrarUsuario(); // Criar um novo usuário
                 return;
             }
 
             if (numeroUsuario >= 1 && numeroUsuario <= usuarios.size()) {
                 Usuario usuarioSelecionado = usuarios.get(numeroUsuario - 1);
-                eventoSelecionado.adicionarParticipante(usuarioSelecionado);
-                salvarEventos(); // Após marcar presença, salva os eventos
-                System.out.println("Presença marcada com sucesso para o evento: " + eventoSelecionado.getNome());
+                eventoSelecionado.AdicionarParticipante(usuarioSelecionado);
+                SalvarEventos(); // Após marcar presença, salva os eventos
+                System.out.println("Presença marcada com sucesso para o evento: " + eventoSelecionado.GetNome());
             } else {
                 System.out.println("Número do usuário inválido.");
             }
@@ -256,7 +256,7 @@ class SistemaEventos {
     }
 
     // Método para cancelar a presença em um evento
-    public void cancelarPresenca() {
+    public void CancelarPresenca() {
         if (eventos.isEmpty()) {
             System.out.println("Não há eventos disponíveis para cancelar presença.");
             return;
@@ -264,7 +264,7 @@ class SistemaEventos {
 
         LocalDateTime agora = LocalDateTime.now();
         List<Evento> eventosFuturos = eventos.stream()
-                .filter(evento -> evento.getHorarioInicio().isAfter(agora))
+                .filter(evento -> evento.GetHorarioInicio().isAfter(agora))
                 .collect(Collectors.toList());
 
         if (eventosFuturos.isEmpty()) {
@@ -274,7 +274,7 @@ class SistemaEventos {
 
         System.out.println("Escolha o evento para cancelar presença:");
         for (int i = 0; i < eventosFuturos.size(); i++) {
-            System.out.println((i + 1) + ". " + eventosFuturos.get(i).getNome());
+            System.out.println((i + 1) + ". " + eventosFuturos.get(i).GetNome());
         }
 
         System.out.print("Digite o número do evento ou 0 para voltar ao menu principal: ");
@@ -288,15 +288,15 @@ class SistemaEventos {
             Evento eventoSelecionado = eventosFuturos.get(numeroEvento - 1);
 
             // Exibir os participantes do evento
-            List<Usuario> participantes = eventoSelecionado.getParticipantes();
+            List<Usuario> participantes = eventoSelecionado.GetParticipantes();
             if (participantes.isEmpty()) {
                 System.out.println("Não há participantes neste evento.");
                 return;
             }
 
-            System.out.println("Participantes do evento '" + eventoSelecionado.getNome() + "':");
+            System.out.println("Participantes do evento '" + eventoSelecionado.GetNome() + "':");
             for (int i = 0; i < participantes.size(); i++) {
-                System.out.println((i + 1) + ". " + participantes.get(i).getNomeCompleto());
+                System.out.println((i + 1) + ". " + participantes.get(i).GetNomeCompleto());
             }
 
             System.out.print("Digite o número do participante para cancelar presença ou 0 para voltar: ");
@@ -308,10 +308,10 @@ class SistemaEventos {
 
             if (numeroParticipante >= 1 && numeroParticipante <= participantes.size()) {
                 Usuario participanteSelecionado = participantes.get(numeroParticipante - 1);
-                eventoSelecionado.removerParticipante(participanteSelecionado);
-                salvarEventos(); // Após cancelar presença, salva os eventos
+                eventoSelecionado.RemoverParticipante(participanteSelecionado);
+                SalvarEventos(); // Após cancelar presença, salva os eventos
                 System.out.println("Presença cancelada com sucesso para o participante: "
-                        + participanteSelecionado.getNomeCompleto());
+                        + participanteSelecionado.GetNomeCompleto());
             } else {
                 System.out.println("Número do participante inválido.");
             }
@@ -321,20 +321,20 @@ class SistemaEventos {
     }
 
     // Método para retornar a lista de eventos
-    public List<Evento> getEventos() {
+    public List<Evento> GetEventos() {
         return eventos;
     }
 
     // Método para retornar a lista de usuários
-    public List<Usuario> getUsuarios() {
+    public List<Usuario> GetUsuarios() {
         return usuarios;
     }
 
     // Método para salvar usuários em um arquivo
-    private void salvarUsuarios() {
+    private void SalvarUsuarios() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("users.data"))) {
             for (Usuario usuario : usuarios) {
-                writer.println(usuario.toFileString());
+                writer.println(usuario.ToFileString());
             }
         } catch (IOException e) {
             System.out.println("Erro ao salvar usuários: " + e.getMessage());
@@ -355,39 +355,39 @@ class SistemaEventos {
      */
 
     // Método para carregar usuários a partir de um arquivo
-    private void carregarUsuarios() {
+    private void CarregarUsuarios() {
         try (BufferedReader reader = new BufferedReader(new FileReader("users.data"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                usuarios.add(Usuario.fromFileString(line));
+                usuarios.add(Usuario.FromFileString(line));
             }
         } catch (IOException e) {
             System.out.println("Erro ao carregar usuários: " + e.getMessage());
             // Se o arquivo não existir, crie um novo arquivo
-            criarArquivo("users.data");
+            CriarArquivo("users.data");
         }
     }
 
     // Método para consultar usuários pelo ID
-    public void consultarUsuarioPorId(int id) {
+    public void ConsultarUsuarioPorId(int id) {
         Usuario usuarioEncontrado = usuarios.stream()
-                .filter(usuario -> usuario.getId() == id)
+                .filter(usuario -> usuario.GetId() == id)
                 .findFirst()
                 .orElse(null);
 
         if (usuarioEncontrado != null) {
             System.out.println("Usuário encontrado:");
-            System.out.println("ID: " + usuarioEncontrado.getId());
-            System.out.println("Nome: " + usuarioEncontrado.getNomeCompleto());
-            System.out.println("Email: " + usuarioEncontrado.getEmail());
-            System.out.println("Cidade: " + usuarioEncontrado.getCidade());
+            System.out.println("ID: " + usuarioEncontrado.GetId());
+            System.out.println("Nome: " + usuarioEncontrado.GetNomeCompleto());
+            System.out.println("Email: " + usuarioEncontrado.GetEmail());
+            System.out.println("Cidade: " + usuarioEncontrado.GetCidade());
         } else {
             System.out.println("Usuário com o ID " + id + " não encontrado.");
         }
     }
 
     // Método para cadastrar um novo usuário
-    public void cadastrarUsuario() {
+    public void CadastrarUsuario() {
         System.out.println("Cadastro de Usuário");
 
         // Solicitar informações do usuário
@@ -410,24 +410,24 @@ class SistemaEventos {
         Usuario novoUsuario = new Usuario(nome, sobrenome, email, cidade);
         usuarios.add(novoUsuario);
 
-        salvarUsuarios(); // Após cadastrar, salva os usuários
+        SalvarUsuarios(); // Após cadastrar, salva os usuários
 
         System.out.println("Usuário cadastrado com sucesso!");
     }
 
     // Método para consultar usuários pelo nome
-    public void consultarUsuarioPorNome(String nome) {
+    public void ConsultarUsuarioPorNome(String nome) {
         List<Usuario> usuariosEncontrados = usuarios.stream()
-                .filter(usuario -> usuario.getNomeCompleto().equalsIgnoreCase(nome))
+                .filter(usuario -> usuario.GetNomeCompleto().equalsIgnoreCase(nome))
                 .collect(Collectors.toList());
 
         if (!usuariosEncontrados.isEmpty()) {
             System.out.println("Usuários encontrados com o nome '" + nome + "':");
             for (Usuario usuario : usuariosEncontrados) {
-                System.out.println("ID: " + usuario.getId());
-                System.out.println("Nome: " + usuario.getNomeCompleto());
-                System.out.println("Email: " + usuario.getEmail());
-                System.out.println("Cidade: " + usuario.getCidade());
+                System.out.println("ID: " + usuario.GetId());
+                System.out.println("Nome: " + usuario.GetNomeCompleto());
+                System.out.println("Email: " + usuario.GetEmail());
+                System.out.println("Cidade: " + usuario.GetCidade());
                 System.out.println();
             }
         } else {
@@ -436,7 +436,7 @@ class SistemaEventos {
     }
 
     // Método principal para consultar usuários
-    public void consultarUsuarios() {
+    public void ConsultarUsuarios() {
         System.out.println("Consulta de Usuário");
         System.out.println("Escolha uma opção:");
         System.out.println("1. Pesquisar por ID");
@@ -449,15 +449,15 @@ class SistemaEventos {
             case 1:
                 System.out.print("Digite o ID do usuário: ");
                 int id = Integer.parseInt(scanner.nextLine());
-                consultarUsuarioPorId(id);
+                ConsultarUsuarioPorId(id);
                 break;
             case 2:
                 System.out.print("Digite o nome e sobrenome do usuário: ");
                 String nome = scanner.nextLine();
-                consultarUsuarioPorNome(nome);
+                ConsultarUsuarioPorNome(nome);
                 break;
             case 3:
-                listarTodosUsuarios();
+                ListarTodosUsuarios();
                 break;
             default:
                 System.out.println("Opção inválida.");
@@ -465,7 +465,7 @@ class SistemaEventos {
     }
 
     // Método para listar todos os usuários
-    public void listarTodosUsuarios() {
+    public void ListarTodosUsuarios() {
         if (usuarios.isEmpty()) {
             System.out.println("Não há usuários cadastrados.");
             return;
@@ -473,10 +473,10 @@ class SistemaEventos {
 
         System.out.println("Lista de todos os usuários:");
         for (Usuario usuario : usuarios) {
-            System.out.println("ID: " + usuario.getId());
-            System.out.println("Nome: " + usuario.getNomeCompleto());
-            System.out.println("Email: " + usuario.getEmail());
-            System.out.println("Cidade: " + usuario.getCidade());
+            System.out.println("ID: " + usuario.GetId());
+            System.out.println("Nome: " + usuario.GetNomeCompleto());
+            System.out.println("Email: " + usuario.GetEmail());
+            System.out.println("Cidade: " + usuario.GetCidade());
             System.out.println();
         }
     }

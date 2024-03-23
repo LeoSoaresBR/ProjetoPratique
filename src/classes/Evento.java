@@ -32,48 +32,48 @@ public class Evento {
     }
 
     // Getters e setters
-    public String getNome() {
+    public String GetNome() {
         return nome;
     }
 
-    public String getEndereco() {
+    public String GetEndereco() {
         return endereco;
     }
 
-    public String getCidade() {
+    public String GetCidade() {
         return cidade;
     }
 
-    public String getCategoria() {
+    public String GetCategoria() {
         return categoria;
     }
 
-    public LocalDateTime getHorarioInicio() {
+    public LocalDateTime GetHorarioInicio() {
         return horarioInicio;
     }
 
-    public LocalDateTime getHorarioFim() {
+    public LocalDateTime GetHorarioFim() {
         return horarioFim;
     }
 
-    public String getDescricao() {
+    public String GetDescricao() {
         return descricao;
     }
 
-    public List<Usuario> getParticipantes() {
+    public List<Usuario> GetParticipantes() {
         return participantes;
     }
 
-    public void adicionarParticipante(Usuario usuario) {
+    public void AdicionarParticipante(Usuario usuario) {
         participantes.add(usuario);
     }
 
-    public void removerParticipante(Usuario usuario) {
+    public void RemoverParticipante(Usuario usuario) {
         participantes.remove(usuario);
     }
 
     // Método para converter o evento para uma string no formato de linha do arquivo
-    public String toFileString() {
+    public String ToFileString() {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
         return nome + ";" + endereco + ";" + cidade + ";" + categoria + ";"
@@ -82,7 +82,7 @@ public class Evento {
     }
 
     // Método para criar um evento a partir de uma linha do arquivo
-    public static Evento fromFileString(String line) {
+    public static Evento FromFileString(String line) {
         String[] parts = line.split(";");
         String nome = parts[0];
         String endereco = parts[1];
