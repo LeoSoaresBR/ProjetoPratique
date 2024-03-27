@@ -39,12 +39,12 @@ class Usuario {
 
     // Método para converter o usuário para uma string no formato de linha do
     // arquivo
-    public String ToFileString() {
+    public String toFileString() {
         return nome + ";" + sobrenome + ";" + email + ";" + cidade;
     }
 
     // Método para criar um usuário a partir de uma linha do arquivo
-    public static Usuario FromFileString(String line) {
+    public static Usuario fromFileString(String line) {
         String[] parts = line.split(";");
         String nome = parts[0];
         String sobrenome = parts[1];

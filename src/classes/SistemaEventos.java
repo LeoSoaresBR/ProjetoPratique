@@ -1,6 +1,8 @@
 package classes;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,10 +30,34 @@ class SistemaEventos {
     private void SalvarEventos() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("events.data"))) {
             for (Evento evento : eventos) {
-                writer.println(evento.ToFileString());
+                writer.println(evento.toFileString());
             }
         } catch (IOException e) {
             System.out.println("Erro ao salvar eventos: " + e.getMessage());
+        }
+    }
+
+    // Método para salvar usuários em um arquivo
+    private void SalvarUsuarios() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("users.data"))) {
+            for (Usuario usuario : usuarios) {
+                writer.println(usuario.toFileString());
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar usuários: " + e.getMessage());
+        }
+    }
+
+    // Método para carregar usuários a partir de um arquivo
+    private void CarregarUsuarios() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("users.data"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                usuarios.add(Usuario.fromFileString(line));
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar usuários: " + e.getMessage());
+
         }
     }
 
@@ -40,26 +66,10 @@ class SistemaEventos {
         try (BufferedReader reader = new BufferedReader(new FileReader("events.data"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                eventos.add(Evento.FromFileString(line));
+                eventos.add(Evento.fromFileString(line));
             }
         } catch (IOException e) {
             System.out.println("Erro ao carregar eventos: " + e.getMessage());
-            // Se o arquivo não existir, crie um novo arquivo
-            CriarArquivo("events.data");
-        }
-    }
-
-    // Método para criar um arquivo se não existir
-    private void CriarArquivo(String nomeArquivo) {
-        try {
-            File arquivo = new File(nomeArquivo);
-            if (arquivo.createNewFile()) {
-                System.out.println("Arquivo '" + nomeArquivo + "' criado com sucesso.");
-            } else {
-                System.out.println("O arquivo '" + nomeArquivo + "' já existe.");
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao criar o arquivo '" + nomeArquivo + "': " + e.getMessage());
         }
     }
 
@@ -178,36 +188,40 @@ class SistemaEventos {
     // Método para marcar presença em um evento
     // Método para marcar presença em um evento
     public void MarcarPresenca() {
+        // Se não houver eventos disponíveis, retorna
         if (eventos.isEmpty()) {
             System.out.println("Não há eventos disponíveis para marcar presença.");
             return;
         }
 
         LocalDateTime agora = LocalDateTime.now();
+        // Filtra os eventos futuros
         List<Evento> eventosFuturos = eventos.stream()
                 .filter(evento -> evento.GetHorarioInicio().isAfter(agora))
                 .collect(Collectors.toList());
 
+        // Se não houver eventos futuros, retorna
         if (eventosFuturos.isEmpty()) {
             System.out.println("Não há eventos futuros disponíveis para marcar presença.");
             return;
         }
 
-        // Obter a cidade do usuário atual - você pode solicitar ao usuário ou obter de
-        // alguma outra fonte
+        // Solicita a cidade do usuário
         System.out.print("Digite a sua cidade: ");
         String cidadeUsuario = scanner.nextLine();
 
-        // Filtrar os eventos futuros disponíveis apenas para a cidade do usuário
+        // Filtra os eventos futuros disponíveis apenas para a cidade do usuário
         eventosFuturos = eventosFuturos.stream()
                 .filter(evento -> evento.GetCidade().equalsIgnoreCase(cidadeUsuario))
                 .collect(Collectors.toList());
 
+        // Se não houver eventos futuros disponíveis na cidade do usuário, retorna
         if (eventosFuturos.isEmpty()) {
             System.out.println("Não há eventos futuros disponíveis na sua cidade para marcar presença.");
             return;
         }
 
+        // Exibe os eventos futuros disponíveis
         System.out.println("Escolha o evento para marcar presença:");
 
         for (int i = 0; i < eventosFuturos.size(); i++) {
@@ -217,42 +231,191 @@ class SistemaEventos {
         System.out.print("Digite o número do evento ou 0 para voltar ao menu principal: ");
         int numeroEvento = Integer.parseInt(scanner.nextLine());
 
-        if (numeroEvento == 0) {
+        // Verifica se o número do evento é válido
+        if (numeroEvento == 0 || !(numeroEvento >= 1 && numeroEvento <= eventosFuturos.size())) {
             return;
         }
 
-        if (numeroEvento >= 1 && numeroEvento <= eventosFuturos.size()) {
-            Evento eventoSelecionado = eventosFuturos.get(numeroEvento - 1);
+        Evento eventoSelecionado = eventosFuturos.get(numeroEvento - 1);
 
-            // Exibir os usuários disponíveis para marcação de presença
-            System.out.println("Escolha um usuário para marcar presença:");
-            for (int i = 0; i < usuarios.size(); i++) {
-                // Filtrar usuários apenas para a mesma cidade do evento
-                if (usuarios.get(i).GetCidade().equalsIgnoreCase(cidadeUsuario)) {
-                    System.out.println((i + 1) + ". " + usuarios.get(i).GetNomeCompleto());
+        // Exibe as opções de pesquisa de usuário
+        System.out.println("Escolha a opção de pesquisa de usuário:");
+        System.out.println("1. Pesquisar por ID");
+        System.out.println("2. Pesquisar por Nome + Sobrenome");
+        System.out.println("3. Pesquisar todos usuários");
+        System.out.print("Digite a opção: ");
+        int opcaoPesquisa = Integer.parseInt(scanner.nextLine());
+
+        Usuario usuarioSelecionado;
+
+        switch (opcaoPesquisa) {
+            case 1:
+                System.out.print("Digite o ID do usuário: ");
+                int idUsuario = Integer.parseInt(scanner.nextLine());
+                Usuario usuarioPorId = usuarios.stream()
+                        .filter(usuario -> usuario.GetId() == idUsuario)
+                        .findFirst()
+                        .orElse(null);
+
+                if (usuarioPorId != null) {
+                    // Verificar se o usuário já está presente no evento
+                    if (eventoSelecionado.GetParticipantes().contains(usuarioPorId)) {
+                        System.out.println("O usuário já está presente neste evento.");
+                        return;
+                    }
+
+                    // Exibe o nome associado ao ID e solicita confirmação
+                    System.out.println("Usuário encontrado:");
+                    System.out.println("Nome: " + usuarioPorId.GetNomeCompleto());
+                    System.out.print("Confirmar presença para este usuário? (S/N): ");
+                    String confirmacao = scanner.nextLine();
+
+                    if (confirmacao.equalsIgnoreCase("S")) {
+                        eventoSelecionado.AdicionarParticipante(usuarioPorId);
+                        SalvarEventos();
+                        SalvarUsuarios();
+                        System.out
+                                .println("Presença marcada com sucesso para o evento: " + eventoSelecionado.GetNome());
+                    } else {
+                        System.out.println("Presença não confirmada.");
+                    }
+                } else {
+                    System.out.println("Usuário com o ID " + idUsuario + " não encontrado.");
+                }
+                break;
+
+            case 2:
+                System.out.print("Digite o nome + sobrenome do usuário: ");
+                String nomeSobrenome = scanner.nextLine();
+                List<Usuario> usuariosPorNome = usuarios.stream()
+                        .filter(usuario -> usuario.GetNomeCompleto().equalsIgnoreCase(nomeSobrenome))
+                        .collect(Collectors.toList());
+
+                if (!usuariosPorNome.isEmpty()) {
+                    System.out.println("Usuários encontrados com o nome '" + nomeSobrenome + "':");
+                    for (int i = 0; i < usuariosPorNome.size(); i++) {
+                        System.out.println((i + 1) + ". " + usuariosPorNome.get(i).GetNomeCompleto());
+                    }
+
+                    System.out.print("Digite o número do usuário ou 0 para cancelar: ");
+                    int numeroUsuario = Integer.parseInt(scanner.nextLine());
+
+                    if (!usuariosPorNome.isEmpty() && numeroUsuario >= 1 && numeroUsuario <= usuariosPorNome.size()) {
+                        usuarioSelecionado = usuariosPorNome.get(numeroUsuario - 1);
+
+                        // Verificar se o usuário já está presente no evento
+                        if (eventoSelecionado.GetParticipantes().contains(usuarioSelecionado)) {
+                            System.out.println("O usuário já está presente neste evento.");
+                            return;
+                        }
+
+                        // Exibe o nome selecionado e solicita confirmação
+                        System.out.println("Nome: " + usuarioSelecionado.GetNomeCompleto());
+                        System.out.print("Confirmar presença para este usuário? (S/N): ");
+                        String confirmacao = scanner.nextLine();
+
+                        if (confirmacao.equalsIgnoreCase("S")) {
+                            eventoSelecionado.AdicionarParticipante(usuarioSelecionado);
+                            SalvarEventos();
+                            System.out.println(
+                                    "Presença marcada com sucesso para o evento: " + eventoSelecionado.GetNome());
+                        } else {
+                            System.out.println("Presença não confirmada.");
+                        }
+                    } else {
+                        System.out.println("Número do usuário inválido.");
+                    }
+                } else {
+                    System.out.println("Nenhum usuário encontrado com o nome '" + nomeSobrenome + "'.");
+                }
+                break;
+
+            case 3:
+                System.out.println("Lista de todos os usuários da cidade '" + cidadeUsuario + "':");
+                List<Usuario> usuariosNaCidade = usuarios.stream()
+                        .filter(usuario -> usuario.GetCidade().equalsIgnoreCase(cidadeUsuario))
+                        .collect(Collectors.toList());
+
+                if (!usuariosNaCidade.isEmpty()) {
+                    for (int i = 0; i < usuariosNaCidade.size(); i++) {
+                        System.out.println((i + 1) + ". " + usuariosNaCidade.get(i).GetNomeCompleto());
+                    }
+
+                    System.out.print("Digite o número do usuário ou 0 para cancelar: ");
+                    int numeroUsuarioCidade = Integer.parseInt(scanner.nextLine());
+
+                    if (numeroUsuarioCidade >= 1 && numeroUsuarioCidade <= usuariosNaCidade.size()) {
+                        Usuario usuarioSelecionadoCidade = usuariosNaCidade.get(numeroUsuarioCidade - 1);
+                        // Verificar se o usuário já está presente no evento
+                        String nomeUsuario = usuarioSelecionadoCidade.GetNomeCompleto();
+                        boolean usuarioPresente = eventoSelecionado.GetParticipantes().stream()
+                                .anyMatch(participante -> participante.GetNomeCompleto().equals(nomeUsuario));
+                        if (!usuarioPresente) {
+                            if (!VerificarPresencaUsuario(usuarioSelecionadoCidade.GetId())) {
+                                // O usuário não está presente no evento, então podemos adicioná-lo
+                                eventoSelecionado.AdicionarParticipante(usuarioSelecionadoCidade);
+                                PegarPresenca(usuarioSelecionadoCidade, eventoSelecionado); // Registrar presença no
+                                                                                            // arquivo
+                                SalvarEventos();
+                                SalvarUsuarios(); // Salvar alterações na lista de usuários
+                                System.out.println(
+                                        "Presença marcada com sucesso para o evento: " + eventoSelecionado.GetNome());
+                            } else {
+                                System.out.println("O usuário já está presente neste evento.");
+                            }
+                        } else {
+                            System.out.println("O usuário já está presente neste evento.");
+                        }
+                    } else {
+                        System.out.println("Número do usuário inválido.");
+                    }
+                } else {
+                    System.out.println("Nenhum usuário encontrado na cidade '" + cidadeUsuario + "'.");
+                }
+                break;
+
+            default:
+                System.out.println("Opção de pesquisa inválida.");
+                break;
+        }
+
+    }
+
+    public void PegarPresenca(Usuario usuario, Evento eventoSelecionado) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("presenca.data", true))) {
+            // Escrever as informações da presença no arquivo no formato desejado
+            writer.println("ID do Usuário: " + usuario.GetId());
+            writer.println("Nome do Usuário: " + usuario.GetNomeCompleto());
+            writer.println("Cidade do Usuário: " + usuario.GetCidade());
+            writer.println("Evento: " + eventoSelecionado.GetNome());
+            writer.println("Horário de Início do Evento: " +
+                    eventoSelecionado.GetHorarioInicio().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            writer.println(); // Adiciona uma linha em branco para separar as entradas no arquivo
+            System.out.println("Presença registrada com sucesso!");
+        } catch (IOException e) {
+            System.out.println("Erro ao registrar presença: " + e.getMessage());
+        }
+    }
+
+    public boolean VerificarPresencaUsuario(int idUsuario) {
+        boolean presente = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader("presenca.data"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Verifica se a linha contém o ID do usuário
+                if (line.startsWith("ID do Usuário:")) {
+                    int idLido = Integer.parseInt(line.substring("ID do Usuário: ".length()).trim());
+                    // Se o ID lido for igual ao ID do usuário que estamos procurando
+                    if (idLido == idUsuario) {
+                        presente = true;
+                        break;
+                    }
                 }
             }
-
-            System.out.println("0. Criar novo usuário");
-            System.out.print("Digite o número do usuário ou 0 para criar um novo: ");
-            int numeroUsuario = Integer.parseInt(scanner.nextLine());
-
-            if (numeroUsuario == 0) {
-                CadastrarUsuario(); // Criar um novo usuário
-                return;
-            }
-
-            if (numeroUsuario >= 1 && numeroUsuario <= usuarios.size()) {
-                Usuario usuarioSelecionado = usuarios.get(numeroUsuario - 1);
-                eventoSelecionado.AdicionarParticipante(usuarioSelecionado);
-                SalvarEventos(); // Após marcar presença, salva os eventos
-                System.out.println("Presença marcada com sucesso para o evento: " + eventoSelecionado.GetNome());
-            } else {
-                System.out.println("Número do usuário inválido.");
-            }
-        } else {
-            System.out.println("Número do evento inválido.");
+        } catch (IOException e) {
+            System.out.println("Erro ao ler o arquivo de presença: " + e.getMessage());
         }
+        return presente;
     }
 
     // Método para cancelar a presença em um evento
@@ -274,7 +437,8 @@ class SistemaEventos {
 
         System.out.println("Escolha o evento para cancelar presença:");
         for (int i = 0; i < eventosFuturos.size(); i++) {
-            System.out.println((i + 1) + ". " + eventosFuturos.get(i).GetNome());
+            System.out.println(
+                    (i + 1) + ". " + eventosFuturos.get(i).GetNome() + " - " + eventosFuturos.get(i).GetCidade());
         }
 
         System.out.print("Digite o número do evento ou 0 para voltar ao menu principal: ");
@@ -287,33 +451,56 @@ class SistemaEventos {
         if (numeroEvento >= 1 && numeroEvento <= eventosFuturos.size()) {
             Evento eventoSelecionado = eventosFuturos.get(numeroEvento - 1);
 
-            // Exibir os participantes do evento
-            List<Usuario> participantes = eventoSelecionado.GetParticipantes();
-            if (participantes.isEmpty()) {
-                System.out.println("Não há participantes neste evento.");
+            // Verificar se o usuário está presente neste evento
+            System.out.print("Digite o ID do usuário para cancelar presença: ");
+            int idUsuario = Integer.parseInt(scanner.nextLine());
+            boolean usuarioPresente = VerificarPresencaUsuario(idUsuario);
+
+            if (!usuarioPresente) {
+                System.out.println("O usuário não está presente neste evento.");
                 return;
             }
 
-            System.out.println("Participantes do evento '" + eventoSelecionado.GetNome() + "':");
-            for (int i = 0; i < participantes.size(); i++) {
-                System.out.println((i + 1) + ". " + participantes.get(i).GetNomeCompleto());
-            }
-
-            System.out.print("Digite o número do participante para cancelar presença ou 0 para voltar: ");
-            int numeroParticipante = Integer.parseInt(scanner.nextLine());
-
-            if (numeroParticipante == 0) {
+            // Verificar se o evento pertence à mesma cidade do usuário
+            if (!eventoSelecionado.GetCidade().equalsIgnoreCase(usuarios.stream()
+                    .filter(u -> u.GetId() == idUsuario)
+                    .findFirst()
+                    .orElse(new Usuario("", "", "", ""))
+                    .GetCidade())) {
+                System.out.println("O evento selecionado não pertence à mesma cidade do usuário.");
                 return;
             }
 
-            if (numeroParticipante >= 1 && numeroParticipante <= participantes.size()) {
-                Usuario participanteSelecionado = participantes.get(numeroParticipante - 1);
-                eventoSelecionado.RemoverParticipante(participanteSelecionado);
-                SalvarEventos(); // Após cancelar presença, salva os eventos
-                System.out.println("Presença cancelada com sucesso para o participante: "
-                        + participanteSelecionado.GetNomeCompleto());
-            } else {
-                System.out.println("Número do participante inválido.");
+            // Excluir todas as informações relacionadas ao usuário do arquivo
+            // "presenca.data"
+            try {
+                File inputFile = new File("presenca.data");
+                File tempFile = new File("temp.data");
+
+                BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+                String lineToRemove = "ID do Usuário: " + idUsuario;
+                String currentLine;
+                while ((currentLine = reader.readLine()) != null) {
+                    if (currentLine.equals(lineToRemove)) {
+                        // Pular todas as linhas relacionadas ao usuário
+                        for (int i = 0; i < 4; i++) {
+                            reader.readLine(); // Pular as próximas três linhas
+                        }
+                        continue;
+                    }
+                    writer.write(currentLine + System.getProperty("line.separator"));
+                }
+                writer.close();
+                reader.close();
+
+                Files.move(tempFile.toPath(), inputFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                System.out.println("Presença cancelada com sucesso para o usuário com ID: " + idUsuario);
+            } catch (IOException e) {
+                System.out.println("Erro ao atualizar o arquivo de presença: " + e.getMessage());
+                e.printStackTrace(); // Imprime o stack trace completo para depuração
             }
         } else {
             System.out.println("Número do evento inválido.");
@@ -328,44 +515,6 @@ class SistemaEventos {
     // Método para retornar a lista de usuários
     public List<Usuario> GetUsuarios() {
         return usuarios;
-    }
-
-    // Método para salvar usuários em um arquivo
-    private void SalvarUsuarios() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("users.data"))) {
-            for (Usuario usuario : usuarios) {
-                writer.println(usuario.ToFileString());
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar usuários: " + e.getMessage());
-        }
-    }
-
-    // Método para gerar id não sendo chamado..
-    // Método para gerar um novo ID unico para usuario
-    /*
-     * private int gerarNovoIdUsuario() {
-     * // verifica qual o maior ID atualmente em uso
-     * int maiorId = usuarios.stream()
-     * .mapToInt(Usuario::getId)
-     * .max().orElse(0);
-     * 
-     * return maiorId + 1;
-     * }
-     */
-
-    // Método para carregar usuários a partir de um arquivo
-    private void CarregarUsuarios() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("users.data"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                usuarios.add(Usuario.FromFileString(line));
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao carregar usuários: " + e.getMessage());
-            // Se o arquivo não existir, crie um novo arquivo
-            CriarArquivo("users.data");
-        }
     }
 
     // Método para consultar usuários pelo ID

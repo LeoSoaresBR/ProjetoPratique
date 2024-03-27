@@ -73,7 +73,7 @@ public class Evento {
     }
 
     // Método para converter o evento para uma string no formato de linha do arquivo
-    public String ToFileString() {
+    public String toFileString() {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
         return nome + ";" + endereco + ";" + cidade + ";" + categoria + ";"
@@ -82,7 +82,7 @@ public class Evento {
     }
 
     // Método para criar um evento a partir de uma linha do arquivo
-    public static Evento FromFileString(String line) {
+    public static Evento fromFileString(String line) {
         String[] parts = line.split(";");
         String nome = parts[0];
         String endereco = parts[1];
